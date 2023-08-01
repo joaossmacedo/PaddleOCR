@@ -204,12 +204,12 @@ def main(args):
                     res, ensure_ascii=False) + "\n"
             save_results.append(save_pred)
 
-            if is_visualize:
-                image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-                boxes = dt_boxes
-                txts = [rec_res[i][0] for i in range(len(rec_res))]
-                scores = [rec_res[i][1] for i in range(len(rec_res))]
+            image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            boxes = dt_boxes
+            txts = [rec_res[i][0] for i in range(len(rec_res))]
+            scores = [rec_res[i][1] for i in range(len(rec_res))]
 
+            if is_visualize:
                 draw_img = draw_ocr_box_txt(
                     image,
                     boxes,
@@ -225,12 +225,23 @@ def main(args):
                 else:
                     save_file = image_file
                 cv2.imwrite(
-                    os.path.join(draw_img_save_dir,
-                                 os.path.basename(save_file)),
-                    draw_img[:, :, ::-1])
+                    os.path.join(draw_img_save_dir, os.path.basename(save_file)),
+                    draw_img[:, :, ::-1]
+                )
                 logger.debug("The visualized image saved in {}".format(
                     os.path.join(draw_img_save_dir, os.path.basename(
                         save_file))))
+
+                results = [
+                    {'bbox': bbox.tolist(), 'text': text, 'score': score}
+                    for bbox, text, score in zip(dt_boxes, txts, scores)
+                ]
+                with open(os.path.join(draw_img_save_dir, os.path.basename(save_file) + '.json'), 'w') as f:
+                    f.write(json.dumps(results))
+
+                logger.debug("The results were saved in {}".format(
+                    os.path.join(draw_img_save_dir, os.path.basename(save_file) + '.json')
+                ))
 
     logger.info("The predict total time is {}".format(time.time() - _st))
     if args.benchmark:
