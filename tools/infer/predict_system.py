@@ -139,6 +139,7 @@ def main(args):
     image_file_list = image_file_list[args.process_id::args.total_process_num]
     text_sys = TextSystem(args)
     is_visualize = True
+    save_image = False
     font_path = args.vis_font_path
     drop_score = args.drop_score
     draw_img_save_dir = args.draw_img_save_dir
@@ -224,10 +225,11 @@ def main(args):
                                                    '_' + str(index) + '.png')
                 else:
                     save_file = image_file
-                cv2.imwrite(
-                    os.path.join(draw_img_save_dir, os.path.basename(save_file)),
-                    draw_img[:, :, ::-1]
-                )
+                if save_image:
+                    cv2.imwrite(
+                        os.path.join(draw_img_save_dir, os.path.basename(save_file)),
+                        draw_img[:, :, ::-1]
+                    )
                 logger.debug("The visualized image saved in {}".format(
                     os.path.join(draw_img_save_dir, os.path.basename(
                         save_file))))
